@@ -1,0 +1,22 @@
+# 仮想環境（両方の場所をケア）
+myDjangoEnv/
+travel_plan_project/myDjangoEnv/
+
+# Python キャッシュ
+__pycache__/
+*.pyc
+
+# SQLite DB（必要に応じて）
+db.sqlite3
+
+# メディアファイルや静的ファイル
+travel_plan_project/media/
+travel_plan_project/static/
+
+# エディタ関連
+.vscode/
+.idea/
+
+# OSのゴミファイル
+.DS_Store
+Thumbs.db

@@ -1,0 +1,24 @@
+<div class="header-container">
+    
+        <div class="d-flex justify-content-between">
+            <div class="d-flex main-header">
+                <a class="navbar-brand " href="{% url 'home' %}"><h2>TravelPlan</h2></a>
+                <a class="navbar-brand " href="{% url 'popular_post_list' %}"><p>人気</p></a>
+                <a class="navbar-brand " href="{% url 'latest_post_list' %}"><p>最新</p></a>
+                <a class="navbar-brand " href="{% url 'liked_post_list' %}"><p>いいね</p></a>
+            </div>
+            <div class="d-flex main-header">
+                <a class="navbar-brand " href="{% url 'member_detail' request.user.id %}"><p>プロフィール</p></a>
+                <a class="navbar-brand position-relative" href="{% url 'notification_list' %}">
+                    <p class="mb-0">通知</p>
+                    {% if unread_notifications_count > 0 %}
+                    <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle"
+                          style="font-size: 0.75rem;">
+                        {{ unread_notifications_count }}
+                    </span>
+                    {% endif %}
+                </a>                
+                <a class="navbar-brand " href="{% url 'member_logout' %}"><p>ログアウト</p></a>
+            </div>
+        </div>
+</div>

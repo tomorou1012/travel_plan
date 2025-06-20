@@ -1,0 +1,35 @@
+{% extends "travel_plan_app_HTML/Base1.html" %}
+{% load static %}
+
+{% block content_block %}
+<div class="container mt-4">
+    <h2 class="mb-4">いいね</h2>
+
+    {% if liked_posts %}
+        <div class="list-group">
+            {% for post in liked_posts %}
+            <a href="{% url 'post_detail' post.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-item-center">
+                <div>
+                    <h4 class="mb-1">{{ post.place }}</h4>
+                    <div class="me-3">
+                        <div class="text-muted mb-0">地域:{{ post.prefecture }}</div>
+                    </div>
+                </div>
+                <div class="like-area">
+                    <i class="fa-solid fa-heart"></i>
+                    {{ post.likes.count }}
+                    <div class="me-3">
+                        <div class="text-muted mb-0">投稿者:{{ post.member.username }}</div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">
+            いいねをした投稿はありません。
+        </div>
+    {% endif %}
+    <a href="javascript:history.back()" class="btn btn-secondary mt-4">戻る</a>
+</div>
+{% endblock %}

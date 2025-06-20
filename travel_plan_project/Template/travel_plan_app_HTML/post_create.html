@@ -1,0 +1,112 @@
+{% extends "travel_plan_app_HTML/Base1.html" %}
+{% load static %}
+
+{% block content_block %}
+{% load custom_filters %}
+<h1>新しいPost</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    {{ day_formset.management_form }}
+    <div id="days-container">
+        {% for day_form in day_formset.forms %}
+            <div class="day-block" data-day-index="{{ forloop.counter0 }}">
+                <h3>Day {{ forloop.counter }}</h3>
+                {{ day_form.id }}
+                {{ day_form.date }}
+                weather: {{ day_form.weather }}
+
+                {% with index=forloop.counter0|stringformat:"s" %}
+                  {% with key="day-"|add:index %}
+                    {% with schedule_formset=schedule_formsets|get_item:key %}
+                        <div class="schedules-container" data-schedule-prefix="schedules-day-{{ forloop.counter0 }}">
+                            {{ schedule_formset.management_form }}
+                            {% for schedule_form in schedule_formset.forms %}
+                                <div class="schedule-form">
+                                    {{ schedule_form.id }}
+                                    time: {{ schedule_form.time }}
+                                    {{ schedule_form.activity }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="button" class="add-schedule" data-day-index="{{ forloop.counter0 }}">＋スケジュール追加</button>
+                    {% endwith %}
+                  {% endwith %}
+                {% endwith %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <button type="button" id="add-day">＋日付を追加</button>
+    <input type="submit" value="保存">
+</form>
+<a href="javascript:history.back()" class="btn btn-secondary mt-4">戻る</a>
+
+<template id="day-template">
+  <div class="day-block" data-day-index="__prefix__">
+      <h3>Day __number__</h3>
+      {% with form=day_formset.empty_form %}
+          {{ form.id.as_widget }}
+          {{ form.date.as_widget }}
+          weather: {{ form.weather.as_widget }}
+      {% endwith %}
+
+      <div class="schedules-container" data-schedule-prefix="schedules-day-__prefix__">
+          <input type="hidden" name="schedules-day-__prefix__-TOTAL_FORMS" value="0">
+          <input type="hidden" name="schedules-day-__prefix__-INITIAL_FORMS" value="0">
+          <input type="hidden" name="schedules-day-__prefix__-MIN_NUM_FORMS" value="0">
+          <input type="hidden" name="schedules-day-__prefix__-MAX_NUM_FORMS" value="1000">
+      </div>
+      <button type="button" class="add-schedule" data-day-index="__prefix__">＋スケジュール追加</button>
+  </div>
+</template>
+
+<template id="schedule-template">
+  <div class="schedule-form">
+      <input type="hidden" name="__prefix__-id">
+      time: <input type="time" name="__prefix__-time" class="form-control" placeholder="時間を選択">
+      <input type="text" name="__prefix__-activity" class="form-control" placeholder="アクティビティ">
+  </div>
+</template>
+
+<script>
+    // Day追加
+    document.getElementById("add-day").addEventListener("click", function () {
+        const container = document.getElementById("days-container");
+        const totalForms = document.querySelector("[name='days-TOTAL_FORMS']");
+        const newIndex = parseInt(totalForms.value);
+        const template = document.getElementById("day-template").innerHTML
+            .replace(/__prefix__/g, newIndex)
+            .replace(/__number__/g, newIndex + 1);
+
+        container.insertAdjacentHTML('beforeend', template);
+        totalForms.value = newIndex + 1;
+    });
+
+    // Schedule追加（委譲イベント）
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('add-schedule')) {
+            const dayIndex = e.target.dataset.dayIndex;
+            console.log("dayIndex");
+            console.log(dayIndex);
+            const scheduleContainer = document.querySelector(`.day-block[data-day-index="${dayIndex}"] .schedules-container`);
+            const prefix = scheduleContainer.dataset.schedulePrefix;
+            const totalFormsInput = scheduleContainer.querySelector(`[name="${prefix}-TOTAL_FORMS"]`);
+            const scheduleIndex = parseInt(totalFormsInput.value);
+
+            const template = document.getElementById("schedule-template").innerHTML
+                .replace(/__prefix__/g, `${prefix}-${scheduleIndex}`);
+
+            scheduleContainer.insertAdjacentHTML('beforeend', template);
+            totalFormsInput.value = scheduleIndex + 1;
+        }
+    });
+</script>
+
+{% endblock %}
+
+
+
+
+

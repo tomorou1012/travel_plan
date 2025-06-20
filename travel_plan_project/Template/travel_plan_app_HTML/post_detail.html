@@ -1,0 +1,95 @@
+{% extends "travel_plan_app_HTML/Base1.html" %}
+{% load static %}
+
+{% block content_block %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ post_detail.place }}</h2>
+            <p class="text-muted">地域： {{ post_detail.prefecture.name }}</p>
+        </div>
+        <div class="card-body">
+            {% for day in post_detail.days.all %}
+            <div style="margin-left: 20px;">
+                <strong>{{ day.date }}</strong> / 天気: {{ day.weather }}
+                
+                <ul>
+                    {% for schedule in day.schedule_set.all %}
+                        <li>{{ schedule.time }} - {{ schedule.activity }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="card-footer text-muted">
+            <p>投稿者：
+                <a href="{% url 'member_detail' post_detail.member.pk %}" class="navbar-brand">
+                    {{ post_detail.member.username }}
+                </a>
+            </p>
+            <p>投稿日： {{ post_detail.created_at|date:'Y-m-d H:i' }}</p>
+            <p>更新日： {{ post_detail.updated_at|date:'Y-m-d H:i' }}</p>
+        </div>
+        <div class="d-flex justify-content-center align-items-center my-3">
+            <form method="post" action="{% url 'like_toggle' post_detail.id %}" name="likeform" class="me-2">
+                {% csrf_token %}
+                {% if is_liked %}
+                <a href="javascript:likeform.submit()">
+                    <i class="fa-solid fa-heart fa-lg text-danger"></i>
+                </a>
+                {% else %}
+                <a href="javascript:likeform.submit()">
+                    <i class="fa-regular fa-heart fa-lg"></i>
+                </a>
+                {% endif %}
+            </form>
+            <p class="mb-0">{{ post_detail.likes.count }}</p>
+        </div>        
+        <div class="mt-4">
+            <h3>コメント一覧</h3>
+            <div class="comments-section">
+                {% for comment in comments %}
+                    <div class="comment p-3 border-bottom">
+                        <div class="d-flex justify-content-between">
+                            <div class="d-flex align-items-center ">
+                                {% if comment.member.member_image %}
+                                <img src="{{ comment.member.member_image.url }}" alt="{{ comment.member.username }}さんのプロフィール画像" class="rounded-circle me-3" style="width: 30px; height: 30px; object-fit: cover;">
+                                {% else %}
+                                <img src="{% static 'images/21682_line.png' %}" alt="デフォルトのプロフィール画像" class="rounded-circle me-3" style="width: 30px; height: 30px; object-fit: cover;">
+                                {% endif %}
+                                <a href="{% url 'member_detail' comment.member.pk %}" class="navbar-brand">
+                                    <strong>{{ comment.member.username }}</strong>
+                                </a>
+                            </div>
+                            <span class="text-muted">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
+                        </div>
+                        <p class="mt-2">{{ comment.content }}</p>
+                    </div>
+                {% empty %}
+                    <p>まだコメントはありません。</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="mt-4">
+            <h3>コメントを追加</h3>
+            <form method="post" action="{% url 'comment_create' post_detail.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ comment_form.content }}
+                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-primary mt-2">コメントを投稿</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <a href="javascript:history.back()" class="btn btn-secondary">戻る</a>
+    {% if request.user == post_detail.member %}
+        <form action="{% url 'post_delete' post_detail.pk %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button class="btn btn-danger" type="submit" onclick="return confirm('本当に削除しますか？')">削除</button>
+        </form>
+        <a href="{% url 'post_update' post_detail.pk %}" class="btn btn-primary">編集</a>
+    {% endif %}    
+</div>
+{% endblock %}
